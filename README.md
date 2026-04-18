@@ -3,6 +3,17 @@ AI-Powered Credit Intelligence Platform
 
 Smarter credit decisions. Faster. Automated.
 
+🌐 Live Demo
+
+🚀 **Frontend (App):
+https://kredz-2nzq.vercel.app
+
+⚡ **Backend API:
+https://kredz.onrender.com
+
+📄 **API Docs:
+https://kredz.onrender.com/docs
+
 🌟 Overview
 
 KREDZ is a full-stack application that uses AI-driven logic to analyze, verify, and evaluate creditworthiness.
@@ -33,8 +44,8 @@ Backend
 DevOps
 
 🐳 Docker
-☁️ Render / Vercel
-🚀 Quick Start
+☁️ Render + Vercel
+🚀 Quick Start (Run Locally)
 1️⃣ Clone the Repository
 git clone https://github.com/arpanbasak90-cyber/KREDZ.git
 cd KREDZ
@@ -43,10 +54,10 @@ cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
 
-📍 Backend runs at:
+📍 Backend runs locally at:
 http://127.0.0.1:8000
 
-👉 API Docs:
+👉 API Docs (after starting backend):
 http://127.0.0.1:8000/docs
 
 3️⃣ Run Frontend
@@ -54,7 +65,7 @@ cd frontend-final
 npm install
 npm run dev
 
-📍 Frontend runs at:
+📍 Frontend runs locally at:
 http://localhost:3000
 
 🔐 Environment Variables
@@ -71,16 +82,13 @@ Add this to .gitignore:
 .env
 🐳 (Optional) Run with Docker
 docker-compose up --build
-
-This will run the full stack (backend + frontend + services) together.
-
 🌍 Deployment
 Frontend: Vercel
-Backend: Render / Railway / Fly.io
+Backend: Render
 
-⚠️ Important: Update API URL in frontend:
+⚠️ Make sure frontend uses:
 
-NEXT_PUBLIC_API_URL=https://your-backend-url
+NEXT_PUBLIC_API_URL=https://kredz.onrender.com
 🧠 How It Works
 User submits data
 Backend processes request
@@ -118,6 +126,15 @@ Priyasmit Ganguly
 Modhurma Ganguly
 Haimontika Roy
 Arpan Basak
+
+## 🔗 GitHub Profiles
+
+- https://github.com/Priyasmit-work  
+- https://github.com/ModhurimaGanguly  
+- https://github.com/haimontikaroy974-crypto  
+- https://github.com/arpanbasak90-cyber
+
+
 ⭐ Support
 
 If you like this project:
@@ -133,4 +150,4 @@ Do not use real financial data without proper compliance.
 🔥 Final Note
 
 “Credit systems shouldn’t be slow or outdated.
-KREDZ is built to change that.”
+KREDZ is built to change that
