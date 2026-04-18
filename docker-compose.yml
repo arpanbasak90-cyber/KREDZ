@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  # ── FastAPI backend ──────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./kredz-final
+    env_file:
+      - ./kredz-final/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - qrcodes:/app/static/qrcodes   # persist generated QR images
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ── React frontend ───────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend-final
+      args:
+        # Point the built JS bundle at the *public* backend URL
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  qrcodes:

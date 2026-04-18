@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ProofChain Design System — Trust-tech: deep blue + emerald */
+
+@layer base {
+  :root {
+    --background: 220 33% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Deep trust blue */
+    --primary: 222 80% 22%;
+    --primary-foreground: 210 40% 98%;
+    --primary-glow: 222 85% 45%;
+
+    /* Emerald accent (verified / success) */
+    --accent: 158 78% 38%;
+    --accent-foreground: 210 40% 98%;
+    --accent-glow: 158 84% 52%;
+
+    --secondary: 220 30% 95%;
+    --secondary-foreground: 222 47% 14%;
+
+    --muted: 220 25% 94%;
+    --muted-foreground: 222 15% 42%;
+
+    --destructive: 0 78% 55%;
+    --destructive-foreground: 210 40% 98%;
+
+    --warning: 38 95% 52%;
+    --warning-foreground: 30 50% 12%;
+
+    --border: 220 22% 88%;
+    --input: 220 22% 88%;
+    --ring: 222 80% 35%;
+
+    --radius: 0.85rem;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(222 80% 18%) 0%, hsl(222 85% 32%) 50%, hsl(200 85% 42%) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-glow)) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)) 0%, hsl(var(--accent-glow)) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(220 40% 98%) 100%);
+    --gradient-mesh: radial-gradient(at 20% 10%, hsl(222 85% 45% / 0.18) 0px, transparent 50%),
+                     radial-gradient(at 80% 0%, hsl(158 84% 52% / 0.15) 0px, transparent 50%),
+                     radial-gradient(at 0% 90%, hsl(200 85% 50% / 0.12) 0px, transparent 50%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px hsl(222 47% 11% / 0.05);
+    --shadow-md: 0 8px 24px -8px hsl(222 47% 11% / 0.12);
+    --shadow-lg: 0 20px 50px -20px hsl(222 80% 22% / 0.35);
+    --shadow-glow: 0 0 40px hsl(222 85% 45% / 0.35);
+    --shadow-accent-glow: 0 0 40px hsl(158 84% 52% / 0.35);
+
+    /* Motion */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-base: all 0.3s var(--ease-out-expo);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 40% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 40% 9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 95% 65%;
+    --primary-foreground: 222 47% 11%;
+    --primary-glow: 210 95% 75%;
+    --accent: 158 78% 48%;
+    --accent-foreground: 222 47% 11%;
+    --secondary: 222 30% 14%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 30% 14%;
+    --muted-foreground: 215 20% 65%;
+    --destructive: 0 78% 55%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
+    --ring: 210 95% 65%;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "ss01", "cv11";
+  }
+  h1, h2, h3, h4 { @apply tracking-tight; }
+}
+
+@layer utilities {
+  .bg-gradient-hero { background-image: var(--gradient-hero); }
+  .bg-gradient-primary { background-image: var(--gradient-primary); }
+  .bg-gradient-accent { background-image: var(--gradient-accent); }
+  .bg-gradient-card { background-image: var(--gradient-card); }
+  .bg-mesh { background-image: var(--gradient-mesh); }
+  .shadow-glow { box-shadow: var(--shadow-glow); }
+  .shadow-accent-glow { box-shadow: var(--shadow-accent-glow); }
+  .shadow-elegant { box-shadow: var(--shadow-lg); }
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .text-gradient-hero {
+    background: var(--gradient-hero);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glass {
+    background: hsl(0 0% 100% / 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(0 0% 100% / 0.4);
+  }
+  .glass-dark {
+    background: hsl(222 47% 11% / 0.55);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(0 0% 100% / 0.08);
+  }
+  .transition-base { transition: var(--transition-base); }
+}

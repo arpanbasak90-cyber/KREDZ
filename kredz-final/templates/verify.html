@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kredz — Credential Verification</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --kredz-blue:   #2563EB;
+      --kredz-green:  #16A34A;
+      --kredz-red:    #DC2626;
+      --kredz-grey:   #6B7280;
+      --kredz-gold:   #D97706;
+      --bg:           #F8FAFC;
+    }
+    body            { background: var(--bg); font-family: 'Segoe UI', sans-serif; }
+    .logo-bar       { background: var(--kredz-blue); padding: 14px 20px; }
+    .logo-text      { color: #fff; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+    .logo-sub       { color: rgba(255,255,255,0.7); font-size: 0.78rem; }
+
+    /* Verdict banner */
+    .verdict        { border-radius: 16px; padding: 24px 20px; text-align: center; margin-bottom: 24px; }
+    .verdict-icon   { font-size: 3rem; line-height: 1; }
+    .verdict-title  { font-size: 1.6rem; font-weight: 800; margin: 8px 0 4px; }
+    .verdict-sub    { font-size: 0.9rem; opacity: 0.85; }
+    .v-verified     { background: #DCFCE7; color: var(--kredz-green); border: 2px solid #86EFAC; }
+    .v-tampered     { background: #FEE2E2; color: var(--kredz-red);   border: 2px solid #FCA5A5; }
+    .v-not_found    { background: #F3F4F6; color: var(--kredz-grey);  border: 2px solid #D1D5DB; }
+
+    /* Cards */
+    .card           { border: none; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .card-label     { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--kredz-grey); font-weight: 600; }
+    .card-value     { font-size: 1rem; font-weight: 600; color: #111827; margin-top: 2px; }
+
+    /* Type badges */
+    .badge-Project     { background: #DBEAFE; color: #1D4ED8; }
+    .badge-Internship  { background: #DCFCE7; color: #15803D; }
+    .badge-Hackathon   { background: #FEF3C7; color: #B45309; }
+    .badge-Research    { background: #EDE9FE; color: #6D28D9; }
+    .badge-Coursework  { background: #F3F4F6; color: #374151; }
+    .type-badge        { font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; display: inline-block; }
+
+    /* Endorsed */
+    .endorsed-badge { background: #DCFCE7; color: #15803D; border: 1.5px solid #86EFAC;
+                      font-size: 0.82rem; font-weight: 700; padding: 5px 14px;
+                      border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; }
+
+    /* Hash */
+    .hash-box       { background: #1E293B; color: #94A3B8; font-size: 0.68rem;
+                      padding: 10px 14px; border-radius: 10px; word-break: break-all;
+                      font-family: monospace; letter-spacing: 0.03em; }
+
+    /* AI Panel */
+    .ai-panel       { background: linear-gradient(135deg, #EFF6FF 0%, #F0FDF4 100%);
+                      border: 1.5px solid #BFDBFE; border-radius: 16px; }
+    .ai-header      { font-size: 1rem; font-weight: 800; color: var(--kredz-blue); }
+    .skill-chip     { background: #DBEAFE; color: #1E40AF; font-size: 0.78rem;
+                      font-weight: 600; padding: 4px 12px; border-radius: 20px; display: inline-block; margin: 3px; }
+    .course-card    { background: #fff; border-radius: 12px; padding: 12px 14px;
+                      border: 1px solid #E2E8F0; text-decoration: none; display: block;
+                      transition: box-shadow 0.15s; }
+    .course-card:hover { box-shadow: 0 4px 16px rgba(37,99,235,0.13); }
+    .platform-nptel    { background: #FEF3C7; color: #92400E; }
+    .platform-YouTube  { background: #FEE2E2; color: #991B1B; }
+    .platform-Coursera { background: #EDE9FE; color: #5B21B6; }
+    .platform-badge    { font-size: 0.7rem; font-weight: 700; padding: 2px 9px; border-radius: 10px; }
+    .next-project   { background: #F0FDF4; border: 1.5px dashed #86EFAC;
+                      border-radius: 12px; padding: 14px; font-size: 0.9rem; color: #166534; }
+
+    /* Footer */
+    .footer         { font-size: 0.75rem; color: var(--kredz-grey); text-align: center; padding: 24px 0 32px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <div class="logo-bar d-flex align-items-center gap-2">
+    <div>
+      <div class="logo-text">⛓ Kredz</div>
+      <div class="logo-sub">Tamper-Proof Credential Verification</div>
+    </div>
+  </div>
+
+  <div class="container py-4" style="max-width:640px;">
+
+    <!-- ── VERDICT BANNER ─────────────────────────────────── -->
+    {% if status == "verified" %}
+    <div class="verdict v-verified">
+      <div class="verdict-icon">✅</div>
+      <div class="verdict-title">VERIFIED</div>
+      <div class="verdict-sub">This credential has not been tampered with.<br>The cryptographic hash matches perfectly.</div>
+    </div>
+
+    {% elif status == "tampered" %}
+    <div class="verdict v-tampered">
+      <div class="verdict-icon">❌</div>
+      <div class="verdict-title">TAMPERED</div>
+      <div class="verdict-sub">Warning: This credential has been altered after submission.<br>Do not trust this record.</div>
+    </div>
+
+    {% else %}
+    <div class="verdict v-not_found">
+      <div class="verdict-icon">🔍</div>
+      <div class="verdict-title">NOT FOUND</div>
+      <div class="verdict-sub">No credential exists for this ID.<br>It may have been deleted or the QR is corrupted.</div>
+    </div>
+    {% endif %}
+
+    <!-- ── CREDENTIAL DETAILS (only if found) ────────────── -->
+    {% if cred and student %}
+    <div class="card mb-3">
+      <div class="card-body p-4">
+
+        <!-- Student + Type -->
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <div class="card-label">Student</div>
+            <div class="card-value">{{ student.name }}</div>
+            <div style="font-size:0.85rem; color:#6B7280;">{{ student.institution }}</div>
+          </div>
+          <span class="type-badge badge-{{ cred.type }}">{{ cred.type }}</span>
+        </div>
+
+        <hr style="border-color:#F1F5F9; margin: 12px 0;">
+
+        <!-- Credential name -->
+        <div class="mb-3">
+          <div class="card-label">Credential</div>
+          <div class="card-value" style="font-size:1.15rem;">{{ cred.project_name }}</div>
+        </div>
+
+        <!-- Institution + Date row -->
+        <div class="row g-3 mb-3">
+          <div class="col-6">
+            <div class="card-label">Institution</div>
+            <div class="card-value">{{ cred.institution }}</div>
+          </div>
+          <div class="col-6">
+            <div class="card-label">Date</div>
+            <div class="card-value">{{ cred.date }}</div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <div class="card-label">Description</div>
+          <div style="font-size:0.9rem; color:#374151; margin-top:4px; line-height:1.6;">{{ cred.description }}</div>
+        </div>
+
+        <!-- GitHub button (conditional) -->
+        {% if cred.github_link %}
+        <a href="{{ cred.github_link }}" target="_blank"
+           class="btn btn-outline-dark btn-sm d-inline-flex align-items-center gap-1 mb-3">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+                     0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+                     -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+                     .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+                     -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27
+                     .68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+                     .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
+                     0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8
+                     c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          View on GitHub
+        </a>
+        {% endif %}
+
+        <!-- Endorsement badge (conditional) -->
+        {% if cred.endorsement_status == 'approved' %}
+        <div class="mt-1">
+          <span class="endorsed-badge">
+            ✅ Endorsed by {{ cred.endorser_name or 'Institution' }}
+          </span>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <!-- Hash proof -->
+    <div class="mb-3">
+      <div class="card-label mb-1" style="padding-left:4px;">SHA-256 Credential Hash</div>
+      <div class="hash-box">{{ cred.credential_hash }}</div>
+    </div>
+
+    <!-- ── AI VERIFICATION PANEL (conditional) ─────────────── -->
+    {% if ai %}
+    <div class="ai-panel p-4 mb-3">
+
+      <!-- Header row with verdict badge -->
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <div class="ai-header">🤖 AI Verification</div>
+          <div style="font-size:0.78rem; color:#64748B;">Powered by Claude · Auto-analysed on submission</div>
+        </div>
+        {% if ai.verdict == 'approve' %}
+          <span style="background:#DCFCE7; color:#15803D; font-size:0.82rem; font-weight:700;
+                       padding:5px 14px; border-radius:20px; border:1.5px solid #86EFAC;">
+            ✅ Approve
+          </span>
+        {% elif ai.verdict == 'reject' %}
+          <span style="background:#FEE2E2; color:#B91C1C; font-size:0.82rem; font-weight:700;
+                       padding:5px 14px; border-radius:20px; border:1.5px solid #FCA5A5;">
+            ❌ Reject
+          </span>
+        {% else %}
+          <span style="background:#FEF3C7; color:#92400E; font-size:0.82rem; font-weight:700;
+                       padding:5px 14px; border-radius:20px; border:1.5px solid #FCD34D;">
+            ⚠️ Review
+          </span>
+        {% endif %}
+      </div>
+
+      <!-- Score meters -->
+      <div class="row g-2 mb-3">
+        <div class="col-6">
+          <div style="background:#fff; border-radius:12px; padding:12px; border:1px solid #E2E8F0;">
+            <div class="card-label">Confidence</div>
+            <div style="font-size:1.4rem; font-weight:800; color:#2563EB; margin:4px 0 6px;">
+              {{ ai.confidence }}%
+            </div>
+            <div style="background:#E2E8F0; border-radius:999px; height:6px;">
+              <div style="background:#2563EB; border-radius:999px; height:6px;
+                          width:{{ ai.confidence }}%;"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div style="background:#fff; border-radius:12px; padding:12px; border:1px solid #E2E8F0;">
+            <div class="card-label">Integrity Score</div>
+            {% set score = ai.integrity_score %}
+            {% if score >= 70 %}
+              {% set score_color = '#16A34A' %}
+            {% elif score >= 40 %}
+              {% set score_color = '#D97706' %}
+            {% else %}
+              {% set score_color = '#DC2626' %}
+            {% endif %}
+            <div style="font-size:1.4rem; font-weight:800; color:{{ score_color }}; margin:4px 0 6px;">
+              {{ score }}/100
+            </div>
+            <div style="background:#E2E8F0; border-radius:999px; height:6px;">
+              <div style="background:{{ score_color }}; border-radius:999px; height:6px;
+                          width:{{ score }}%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Summary -->
+      {% if ai.summary %}
+      <div style="background:#fff; border-radius:12px; padding:14px; border:1px solid #E2E8F0; margin-bottom:12px;">
+        <div class="card-label mb-1">AI Summary</div>
+        <p style="font-size:0.88rem; color:#374151; margin:0; line-height:1.6;">{{ ai.summary }}</p>
+      </div>
+      {% endif %}
+
+      <!-- Critical Flags -->
+      {% if ai.flags and ai.flags|length > 0 %}
+      <div style="background:#FEF2F2; border-radius:12px; padding:14px;
+                  border:1px solid #FECACA; margin-bottom:12px;">
+        <div class="card-label mb-2" style="color:#B91C1C;">🚩 Critical Flags</div>
+        {% for flag in ai.flags %}
+          <div style="font-size:0.84rem; color:#7F1D1D; margin-bottom:4px;">• {{ flag }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- GitHub Analysis -->
+      {% if ai.github %}
+      <div style="background:#fff; border-radius:12px; padding:14px;
+                  border:1px solid #E2E8F0; margin-bottom:12px;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="card-label">GitHub Analysis</div>
+          {% if ai.github.plagiarism_risk == 'low' %}
+            <span style="background:#DCFCE7; color:#15803D; font-size:0.72rem; font-weight:700;
+                         padding:2px 10px; border-radius:10px;">Low Risk</span>
+          {% elif ai.github.plagiarism_risk == 'medium' %}
+            <span style="background:#FEF3C7; color:#92400E; font-size:0.72rem; font-weight:700;
+                         padding:2px 10px; border-radius:10px;">Medium Risk</span>
+          {% elif ai.github.plagiarism_risk == 'high' %}
+            <span style="background:#FEE2E2; color:#B91C1C; font-size:0.72rem; font-weight:700;
+                         padding:2px 10px; border-radius:10px;">High Risk</span>
+          {% else %}
+            <span style="background:#F3F4F6; color:#6B7280; font-size:0.72rem; font-weight:700;
+                         padding:2px 10px; border-radius:10px;">Not Provided</span>
+          {% endif %}
+        </div>
+        {% if ai.github.issues and ai.github.issues|length > 0 %}
+          {% for issue in ai.github.issues %}
+            <div style="font-size:0.82rem; color:#64748B; margin-bottom:3px;">⚠ {{ issue }}</div>
+          {% endfor %}
+        {% else %}
+          <div style="font-size:0.82rem; color:#16A34A;">✓ No issues detected</div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Certificate Authenticity -->
+      {% if ai.certificates %}
+      <div style="background:#fff; border-radius:12px; padding:14px; border:1px solid #E2E8F0;">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="card-label">Certificate Check</div>
+          {% if ai.certificates.authentic == true %}
+            <span style="background:#DCFCE7; color:#15803D; font-size:0.72rem; font-weight:700;
+                         padding:2px 10px; border-radius:10px;">✓ Authentic</span>
+          {% elif ai.certificates.authentic == false %}
+            <span style="background:#FEE2E2; color:#B91C1C; font-size:0.72rem; font-weight:700;
+                         padding:2px 10px; border-radius:10px;">✗ Suspicious</span>
+          {% else %}
+            <span style="background:#F3F4F6; color:#6B7280; font-size:0.72rem; font-weight:700;
+                         padding:2px 10px; border-radius:10px;">Unverified</span>
+          {% endif %}
+        </div>
+        {% if ai.certificates.issues and ai.certificates.issues|length > 0 %}
+          {% for issue in ai.certificates.issues %}
+            <div style="font-size:0.82rem; color:#64748B; margin-bottom:3px;">⚠ {{ issue }}</div>
+          {% endfor %}
+        {% else %}
+          <div style="font-size:0.82rem; color:#16A34A;">✓ Consistency checks passed</div>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Error notice (if AI call failed) -->
+      {% if ai.error %}
+      <div style="font-size:0.78rem; color:#94A3B8; margin-top:10px; text-align:center;">
+        ⚠ {{ ai.error }}
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Processing placeholder: AI not yet ready -->
+    {% elif cred %}
+    <div class="ai-panel p-4 mb-3" style="text-align:center; opacity:0.7;">
+      <div class="ai-header mb-1">🤖 AI Verification</div>
+      <div style="font-size:0.85rem; color:#64748B; margin-top:8px;">
+        Analysis in progress — refresh in a few seconds.
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="footer">
+      Secured by <strong>Kredz</strong> · SHA-256 cryptographic proof<br>
+      Hash recomputed live on every page load · Never cached
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
