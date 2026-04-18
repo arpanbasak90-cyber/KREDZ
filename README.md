@@ -53,20 +53,10 @@ cd KREDZ
 cd backend
 pip install -r requirements.txt
 uvicorn main:app --reload
-
-📍 Backend runs locally at:
-http://127.0.0.1:8000
-
-👉 API Docs (after starting backend):
-http://127.0.0.1:8000/docs
-
 3️⃣ Run Frontend
 cd frontend-final
 npm install
 npm run dev
-
-📍 Frontend runs locally at:
-http://localhost:3000
 
 🔐 Environment Variables
 
@@ -121,18 +111,18 @@ KREDZ/
 Contributions are welcome!
 
 Fork → Create Branch → Commit → Pull Request 🚀
-👨‍💻 Authors
-Priyasmit Ganguly
-Modhurma Ganguly
-Haimontika Roy
-Arpan Basak
 
-## 🔗 GitHub Profiles
+## 👨‍💻 Authors
 
-- https://github.com/Priyasmit-work  
-- https://github.com/ModhurimaGanguly  
-- https://github.com/haimontikaroy974-crypto  
-- https://github.com/arpanbasak90-cyber
+- **Priyasmit Ganguly** — https://github.com/Priyasmit-work
+
+- **Modhurma Ganguly** — https://github.com/ModhurimaGanguly
+
+  
+- **Haimontika Roy** — https://github.com/haimontikaroy974-crypto
+
+   
+- **Arpan Basak** — https://github.com/arpanbasak90-cyber  
 
 
 ⭐ Support
