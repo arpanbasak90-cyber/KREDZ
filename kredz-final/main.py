@@ -1,14 +1,12 @@
 import asyncio
+import base64
 import json
 import os
 import secrets
-import smtplib
 from datetime import datetime, timezone
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
 from pathlib import Path
 from typing import Optional
+import httpx
 
 import qrcode
 from fastapi import FastAPI, File, Form, Request, HTTPException, UploadFile
@@ -28,10 +26,9 @@ from schemas import GenerateHashResponse, VerifyHashResponse
 
 load_dotenv()
 
-SMTP_HOST     = os.getenv("SMTP_HOST", "smtp.gmail.com")
-SMTP_PORT     = int(os.getenv("SMTP_PORT", "587"))
-SMTP_USER     = os.getenv("SMTP_USER", "")
-SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+RESEND_FROM    = os.getenv("RESEND_FROM", "Kredz <onboarding@resend.dev>")
+RESEND_URL     = "https://api.resend.com/emails"
 
 NGROK_URL     = os.getenv("NGROK_URL", "http://localhost:8000")
 APP_FRONT_URL = os.getenv("APP_FRONT_URL", "http://localhost:5173")
@@ -79,19 +76,22 @@ class MentorLogin(BaseModel):
 VALID_TYPES = {"Project", "Internship", "Hackathon", "Research", "Coursework"}
 
 # ── Email helper ──────────────────────────────────────────────────────
-def send_qr_email(to_email: str, mentor_name: str, student_name: str,
-                  project_name: str, deep_link: str, qr_image_path: str) -> bool:
+async def send_qr_email(to_email: str, mentor_name: str, student_name: str,
+                        project_name: str, deep_link: str, qr_image_path: str) -> bool:
     """
-    Send the QR code to the mentor's email with a deep-link.
+    Send the QR code to the mentor's email with a deep-link, via Resend's HTTP API.
     Returns True on success, False on failure.
+
+    Uses HTTPS (port 443) instead of raw SMTP, so it works on hosts (e.g. Render
+    free tier) that block outbound SMTP ports 25/465/587.
     """
-    if not SMTP_USER or not SMTP_PASSWORD:
-        return False   # SMTP not configured — skip silently
+    if not RESEND_API_KEY:
+        print("[Kredz EMAIL ERROR] RESEND_API_KEY not configured — skipping send.")
+        return False
+
     try:
-        msg = MIMEMultipart("related")
-        msg["Subject"] = f"[Kredz] Please verify {student_name}'s credential — {project_name}"
-        msg["From"]    = SMTP_USER
-        msg["To"]      = to_email
+        with open(qr_image_path, "rb") as f:
+            qr_b64 = base64.b64encode(f.read()).decode("utf-8")
 
         html_body = f"""
         <html><body style="font-family:sans-serif;color:#1e293b;max-width:600px;margin:0 auto;padding:24px">
@@ -120,20 +120,32 @@ def send_qr_email(to_email: str, mentor_name: str, student_name: str,
         </body></html>
         """
 
-        alt = MIMEMultipart("alternative")
-        alt.attach(MIMEText(html_body, "html"))
-        msg.attach(alt)
+        payload = {
+            "from":    RESEND_FROM,
+            "to":      [to_email],
+            "subject": f"[Kredz] Please verify {student_name}'s credential — {project_name}",
+            "html":    html_body,
+            "attachments": [
+                {
+                    "filename": "qr.png",
+                    "content":  qr_b64,
+                    "content_id": "qrcode",
+                }
+            ],
+        }
 
-        with open(qr_image_path, "rb") as f:
-            img = MIMEImage(f.read())
-        img.add_header("Content-ID", "<qrcode>")
-        img.add_header("Content-Disposition", "inline", filename="qr.png")
-        msg.attach(img)
+        headers = {
+            "Authorization": f"Bearer {RESEND_API_KEY}",
+            "Content-Type":  "application/json",
+        }
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_USER, to_email, msg.as_string())
+        async with httpx.AsyncClient(timeout=20) as client:
+            response = await client.post(RESEND_URL, json=payload, headers=headers)
+
+        if response.status_code >= 400:
+            print(f"[Kredz EMAIL ERROR] Resend returned {response.status_code}: {response.text}")
+            return False
+
         return True
     except Exception as e:
         import logging, traceback
@@ -413,7 +425,7 @@ async def api_submit(
     if endorser_email:
         student_row = db_select("students", {"id": student_id})
         s_name = student_row[0]["name"] if student_row else student_name
-        email_ok = send_qr_email(
+        email_ok = await send_qr_email(
             endorser_email,
             endorser_name or "Mentor",
             s_name,
