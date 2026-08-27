@@ -20,3 +20,21 @@ alter table credentials
 
 -- Create an index for fast token lookups
 create index if not exists idx_credentials_qr_token on credentials(qr_token);
+
+-- 3. Seal columns — the mentor's permanent, chained signature over the
+--    already-approved credential hash. seal_hash is set once by
+--    POST /api/seal/{token} and is never overwritten afterward.
+alter table credentials
+  add column if not exists seal_hash  text,
+  add column if not exists sealed_by  text,
+  add column if not exists sealed_at  timestamptz;
+
+-- 4. GitHub-view tracking — records, server-side, whether the mentor
+--    actually opened the linked repo before endorsing. This lives in the
+--    DB (not just frontend React state) because client-side state resets
+--    on refresh and can be bypassed — the endorsement gate needs a source
+--    of truth the mentor can't clear just by reloading the page.
+--    Set by POST /api/track-github-view/{token}.
+alter table credentials
+  add column if not exists github_viewed    boolean     not null default false,
+  add column if not exists github_viewed_at timestamptz;
