@@ -25,7 +25,7 @@ GROQ_API_KEY  = os.getenv("GROQ_API_KEY", "")
 GITHUB_TOKEN  = os.getenv("GITHUB_TOKEN", "")
 GROQ_URL      = "https://api.groq.com/openai/v1/chat/completions"
 GITHUB_API_BASE = "https://api.github.com"
-MODEL         = "openai/gpt-oss-120b""   # Free on Groq
+MODEL         = "openai/gpt-oss-120b"   # Free on Groq
 MAX_TOKENS    = 1024
 
 logger = logging.getLogger("kredz.ai")
