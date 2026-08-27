@@ -2,6 +2,7 @@ import asyncio
 import base64
 import json
 import os
+import hashlib
 import secrets
 from datetime import datetime, timezone
 from pathlib import Path
@@ -600,6 +601,92 @@ async def api_verify(
         credential_type=cred.get("type") if valid else None,
         owner_email_hash=metadata_used.get("email_hash") if valid else None,
     )
+
+# ── POST /api/track-github-view/{token} ─────────────────────────────────
+#
+# Called the moment a mentor clicks the GitHub link on the verify page.
+# This is the server-side source of truth for the "opened the repo"
+# endorsement gate — it must NOT live only in frontend React state,
+# because that resets on refresh and gives no real guarantee the mentor
+# looked at the code before approving.
+#
+@app.post("/api/track-github-view/{token}")
+async def track_github_view(token: str):
+    results = db_select("credentials", {"endorsement_token": token})
+    if not results:
+        raise HTTPException(status_code=404, detail="Invalid or expired token.")
+
+    cred = results[0]
+
+    # Idempotent: only set the timestamp the first time.
+    if not cred.get("github_viewed"):
+        db_update(
+            "credentials",
+            {
+                "github_viewed":    True,
+                "github_viewed_at": datetime.now(timezone.utc).isoformat(),
+            },
+            {"endorsement_token": token},
+        )
+
+    return {"github_viewed": True}
+
+
+# ── POST /api/seal/{token} ───────────────────────────────────────────────
+#
+# Permanently chains a mentor signature onto an already-approved
+# credential. One-way: once seal_hash is set it can never be
+# overwritten. seal_hash = SHA-256(credential_hash + mentor_email + iso
+# timestamp) so the seal itself is tamper-evident and tied to both the
+# original bundle and the specific mentor who sealed it.
+#
+@app.post("/api/seal/{token}")
+async def api_seal(token: str, mentor_email: EmailStr = Form(...)):
+    results = db_select("credentials", {"endorsement_token": token})
+    if not results:
+        raise HTTPException(status_code=404, detail="Invalid or expired endorsement token.")
+
+    cred = results[0]
+
+    if cred.get("endorsement_status") != "approved":
+        raise HTTPException(
+            status_code=409,
+            detail="Only approved credentials can be sealed.",
+        )
+
+    if cred.get("seal_hash"):
+        raise HTTPException(
+            status_code=409,
+            detail="This credential has already been sealed.",
+        )
+
+    # Confirm the sealing mentor is the one who actually endorsed it.
+    if cred.get("endorser_email") and cred["endorser_email"].strip().lower() != mentor_email.strip().lower():
+        raise HTTPException(
+            status_code=403,
+            detail="Only the endorsing mentor can seal this credential.",
+        )
+
+    sealed_at = datetime.now(timezone.utc).isoformat()
+    seal_payload = f"{cred['credential_hash']}|{mentor_email.strip().lower()}|{sealed_at}"
+    seal_hash = hashlib.sha256(seal_payload.encode("utf-8")).hexdigest()
+
+    db_update(
+        "credentials",
+        {
+            "seal_hash": seal_hash,
+            "sealed_by": mentor_email,
+            "sealed_at": sealed_at,
+        },
+        {"endorsement_token": token},
+    )
+
+    return {
+        "seal_hash": seal_hash,
+        "sealed_by": mentor_email,
+        "sealed_at": sealed_at,
+    }
+
 
 # ── GET /endorse/{token} ──────────────────────────────────────────────
 @app.get("/endorse/{token}", response_class=HTMLResponse)
