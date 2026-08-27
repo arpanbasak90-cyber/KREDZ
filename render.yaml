@@ -1,0 +1,49 @@
+# render.yaml — deploy both services to Render.com with one click
+# https://docs.render.com/blueprint-spec
+
+services:
+  # ── Backend (Python/FastAPI) ─────────────────────────────────────────
+  - type: web
+    name: kredz-backend
+    runtime: python
+    rootDir: kredz-final
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false          # fill in Render dashboard
+      - key: SUPABASE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: NGROK_URL
+        sync: false          # set to your Render backend URL after first deploy
+      - key: APP_FRONT_URL
+        sync: false          # set to your Render frontend URL after first deploy
+      - key: ALLOWED_ORIGINS
+        sync: false          # e.g. https://kredz-frontend.onrender.com
+
+  # ── Frontend (Static Site) ───────────────────────────────────────────
+  - type: web
+    name: kredz-frontend
+    runtime: static
+    rootDir: frontend-final
+    buildCommand: npm ci --legacy-peer-deps && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false          # set to https://kredz-backend.onrender.com
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
