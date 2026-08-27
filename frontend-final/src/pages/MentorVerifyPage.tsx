@@ -55,6 +55,10 @@ export default function MentorVerifyPage() {
 
   // ── Review gate state ────────────────────────────────────────────
   const [reviewedCheckpoints, setReviewedCheckpoints] = useState<Set<number>>(new Set());
+  // Source of truth is the DB (cred.github_viewed), not this flag alone —
+  // this just avoids a flash of the "unviewed" state after the click,
+  // before refreshCredential() has round-tripped. It's initialized from
+  // the backend on load/refresh so a page reload can't clear the gate.
   const [githubViewed, setGithubViewed] = useState(false);
 
   // Fetch credential on mount
@@ -69,6 +73,7 @@ export default function MentorVerifyPage() {
       .then((data) => {
         if (data.detail) throw new Error(data.detail);
         setCredData(data);
+        setGithubViewed(Boolean(data?.credential?.github_viewed));
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -77,6 +82,17 @@ export default function MentorVerifyPage() {
   const refreshCredential = async () => {
     const updated = await fetch(`${API}/api/credential-by-qr-token/${token}`).then((r) => r.json());
     setCredData(updated);
+    setGithubViewed(Boolean(updated?.credential?.github_viewed));
+  };
+
+  // Persists the "mentor opened the repo" fact server-side (in the
+  // credentials table via /api/track-github-view) so it survives a page
+  // refresh and can't be bypassed by just reloading.
+  const handleGithubClick = () => {
+    setGithubViewed(true); // optimistic, for instant UI feedback
+    fetch(`${API}/api/track-github-view/${token}`, { method: "POST" }).catch(() => {
+      /* non-fatal — mentor can still click through again */
+    });
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -234,7 +250,7 @@ export default function MentorVerifyPage() {
               href={githubLink}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={() => setGithubViewed(true)}
+              onClick={handleGithubClick}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors ${
                 githubViewed
                   ? "border-accent/40 bg-accent/10 text-accent"
