@@ -15,12 +15,10 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 glass">
       <div className="container flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2 group">
+        <Link to="/" className="flex items-center gap-2.5 group">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-accent rounded-lg blur-md opacity-60 group-hover:opacity-100 transition-base" />
-            <div className="relative bg-gradient-primary p-2 rounded-lg shadow-md">
-              <ShieldCheck className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
-            </div>
+            <div className="absolute inset-0 bg-primary/30 rounded-xl blur-md opacity-60 group-hover:opacity-100 transition-base" />
+            <img src="/logo.svg" alt="Kredz Logo" className="relative h-9 w-9 object-contain drop-shadow" />
           </div>
           <div className="flex flex-col leading-none">
             <span className="font-display font-bold text-lg tracking-tight">Kredz</span>

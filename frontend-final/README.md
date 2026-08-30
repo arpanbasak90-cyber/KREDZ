@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# KREDZ Frontend
 
-TODO: Document your project here
+Frontend application for KREDZ — AI-Powered Credit & Credential Intelligence Platform. Built with React, Vite, TypeScript, and Tailwind CSS.

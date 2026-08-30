@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="kredz-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="50%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="kredz-glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#34D399"/>
+    </linearGradient>
+    <linearGradient id="shield-bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1E293B"/>
+      <stop offset="100%" stop-color="#0F172A"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#shield-bg)"/>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="none" stroke="url(#kredz-grad)" stroke-width="8" stroke-opacity="0.5"/>
+
+  <g transform="translate(256, 256)">
+    <path d="M 0 -140 L 110 -80 V 30 C 110 100 0 150 0 150 C 0 150 -110 100 -110 30 V -80 Z" 
+          fill="none" stroke="url(#kredz-glow)" stroke-width="14" stroke-linejoin="round" opacity="0.35"/>
+    <path d="M -60 -90 V 90" stroke="url(#kredz-grad)" stroke-width="32" stroke-linecap="round"/>
+    <path d="M -45 -10 L 55 -90" stroke="url(#kredz-grad)" stroke-width="28" stroke-linecap="round"/>
+    <path d="M -35 15 L 15 65 L 75 -25" fill="none" stroke="url(#kredz-glow)" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="55" cy="-90" r="12" fill="#60A5FA"/>
+    <circle cx="75" cy="-25" r="12" fill="#34D399"/>
+    <circle cx="-60" cy="-90" r="12" fill="#3B82F6"/>
+    <circle cx="-60" cy="90" r="12" fill="#0D9488"/>
+  </g>
+</svg>

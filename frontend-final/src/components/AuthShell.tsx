@@ -10,9 +10,7 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
         <div className="absolute inset-0 bg-mesh opacity-40" />
         <div className="relative flex flex-col justify-between w-full">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="bg-white/15 backdrop-blur p-2 rounded-lg">
-              <ShieldCheck className="h-5 w-5" strokeWidth={2.5} />
-            </div>
+            <img src="/logo.svg" alt="Kredz Logo" className="h-9 w-9 object-contain" />
             <span className="font-display font-bold text-xl">Kredz</span>
           </Link>
 
@@ -33,10 +31,8 @@ export function AuthShell({ title, subtitle, children }: { title: string; subtit
       {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center p-6 md:p-10">
         <div className="w-full max-w-md animate-fade-in">
-          <Link to="/" className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="bg-gradient-primary p-2 rounded-lg shadow-md">
-              <ShieldCheck className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />
-            </div>
+          <Link to="/" className="lg:hidden flex items-center gap-2.5 mb-8">
+            <img src="/logo.svg" alt="Kredz Logo" className="h-8 w-8 object-contain" />
             <span className="font-display font-bold text-lg">Kredz</span>
           </Link>
 
