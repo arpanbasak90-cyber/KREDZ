@@ -6,13 +6,8 @@ Smarter credit decisions. Faster. Automated.
 🌐 Live Demo
 
 🚀 **Frontend (App):
-https://kredz-2nzq.vercel.app
+https://kredz-2nzq.vercel.app/
 
-⚡ **Backend API:
-https://kredz.onrender.com
-
-📄 **API Docs:
-https://kredz.onrender.com/docs
 
 🌟 Overview
 
